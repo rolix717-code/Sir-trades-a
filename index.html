@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIR TRADES AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">SIR <span>TRADES</span> AI</div>
+    <div class="status">● ONLINE</div>
+</header>
+
+<section class="hero">
+    <h1>WELCOME TO <span>SIR TRADES AI</span></h1>
+    <p>Your virtual sports odds analysis workspace.</p>
+</section>
+
+<main>
+    <section class="card">
+        <h2>📸 Screenshot Analysis</h2>
+        <p>Upload a virtual sports screenshot.</p>
+
+        <input type="file" id="imageInput" accept="image/*">
+
+        <img id="preview" alt="Screenshot preview">
+
+        <button onclick="analyseImage()">ANALYSE SCREENSHOT</button>
+
+        <div id="analysisResult"></div>
+    </section>
+
+    <section class="card">
+        <h2>🧮 Odds Calculator</h2>
+
+        <label>Enter odds (separate with commas)</label>
+        <input id="odds" placeholder="1.40, 1.50, 1.25">
+
+        <label>Stake (UGX)</label>
+        <input id="stake" type="number" value="10000">
+
+        <button onclick="calculateOdds()">CALCULATE</button>
+
+        <div class="results">
+            <p>Combined Odds: <strong id="combined">0.00</strong></p>
+            <p>Possible Return: <strong id="returns">0 UGX</strong></p>
+            <p>Possible Profit: <strong id="profit">0 UGX</strong></p>
+            <p>Implied Probability: <strong id="probability">0%</strong></p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    SIR TRADES AI © 2026
+    <p>Virtual sports outcomes are random. No guaranteed winnings.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
