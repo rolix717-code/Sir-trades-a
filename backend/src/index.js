@@ -35,60 +35,65 @@ export default {
         throw new Error("Image must be under 8 MB.");
       }
 
-      const types = ["image/jpeg", "image/png", "image/webp"];
-
-      if (!types.includes(image.type)) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(image.type)) {
         throw new Error("Only JPG, PNG and WEBP images are supported.");
       }
 
       const bytes = new Uint8Array(await image.arrayBuffer());
-
       let binary = "";
+
       for (let i = 0; i < bytes.length; i += 32768) {
-        binary += String.fromCharCode(
-          ...bytes.subarray(i, i + 32768)
-        );
+        binary += String.fromCharCode(...bytes.subarray(i, i + 32768));
       }
 
       const base64 = btoa(binary);
 
       const response = await fetch(
-        "https://api.openai.com/v1/responses",
+        "https://tchavi.com/api/v1/chat/completions",
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
+            "Authorization": `Bearer ${env.TCHAVI_API_KEY}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "gpt-4.1",
-            input: [{
-              role: "user",
-              content: [
-                {
-                  type: "input_text",
-                  text: `You are SIR TRADES AI.
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content: `You are SIR TRADES AI.
+Analyse virtual sports screenshots.
 
-Analyse this virtual sports screenshot.
-
-1. Extract visible fixtures and teams.
-2. Read all visible odds.
-3. Identify betting markets.
-4. Calculate implied probabilities.
-5. Highlight unclear information.
-6. Present the results clearly.
+Extract:
+1. Visible fixtures and teams.
+2. All readable odds.
+3. Betting markets.
+4. Implied probabilities.
+5. Combined odds where possible.
+6. Unclear information.
 
 Never invent missing information.
 Never guarantee winnings.
-Virtual sports outcomes are random.`
-                },
-                {
-                  type: "input_image",
-                  image_url: `data:${image.type};base64,${base64}`,
-                  detail: "high"
-                }
-              ]
-            }]
+Virtual sports outcomes are random.
+Clearly explain that analysis is not a guaranteed prediction.`
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Analyse this uploaded virtual sports screenshot."
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: `data:${image.type};base64,${base64}`
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 1200
           })
         }
       );
@@ -97,12 +102,17 @@ Virtual sports outcomes are random.`
 
       if (!response.ok) {
         throw new Error(
-          result.error?.message || "AI analysis failed."
+          result.error?.message || JSON.stringify(result.error) ||
+          "Tchavi API request failed."
         );
       }
 
       return Response.json(
-        { analysis: result.output_text || "No analysis returned." },
+        {
+          analysis:
+            result.choices?.[0]?.message?.content ||
+            "No analysis returned."
+        },
         { headers }
       );
 
