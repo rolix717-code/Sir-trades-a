@@ -19,16 +19,40 @@ imageInput.addEventListener("change", function () {
         "Screenshot uploaded successfully.";
 });
 
-function analyseImage() {
+async function analyseImage() {
     const file = imageInput.files[0];
+    const result = document.getElementById("analysisResult");
 
     if (!file) {
         alert("Upload a screenshot first.");
         return;
     }
 
-    document.getElementById("analysisResult").innerText =
-        "Screenshot ready. Connect the secure AI backend to analyse fixtures and odds.";
+    result.innerText = "SIR TRADES AI is analysing your screenshot...";
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const response = await fetch(
+            "https://sir-trades-ag.rolix717.workers.dev",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Analysis failed.");
+        }
+
+        result.innerText = data.analysis;
+
+    } catch (error) {
+        result.innerText = "Error: " + error.message;
+    }
 }
 
 function calculateOdds() {
