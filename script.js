@@ -1,59 +1,10 @@
-const imageInput = document.getElementById("imageInput");
-
-async function analyseImage() {
-    const result = document.getElementById("analysisResult");
-    const file = imageInput.files[0];
-
-    if (!file) {
-        result.innerText = "Please upload a screenshot first.";
-        return;
-    }
-
-    result.innerText = "🔥 SIR TRADES AI is analysing...";
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-        const response = await fetch(
-            "https://sir-trades-ag.rolix717.workers.dev",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || "Analysis failed.");
-        }
-
-        result.innerText = data.analysis;
-
-    } catch (error) {
-        result.innerText = "Error: " + error.message;
-    }
-}
-
-function calculateOdds() {
-    const numbers = document.getElementById("odds").value
-        .split(/[,\s]+/)
-        .filter(Boolean)
-        .map(Number);
-
-    const stake = Number(document.getElementById("stake").value);
-
-    if (!numbers.length || numbers.some(n => !Number.isFinite(n) || n <= 1) || stake <= 0) {
-        alert("Enter valid odds and stake.");
-        return;
-    }
-
-    const combined = numbers.reduce((a, b) => a * b, 1);
-    const returns = combined * stake;
-
-    document.getElementById("combined").innerText = combined.toFixed(2);
-    document.getElementById("returns").innerText = Math.round(returns).toLocaleString() + " UGX";
-    document.getElementById("profit").innerText = Math.round(returns - stake).toLocaleString() + " UGX";
-    document.getElementById("probability").innerText = (100 / combined).toFixed(2) + "%";
-}
+const HISTORY_KEY="sirTradesEnglishVirtualHistory";
+const imageInput=document.getElementById("imageInput"),historyInput=document.getElementById("historyInput");
+function saved(){return localStorage.getItem(HISTORY_KEY)||""}
+function refresh(){document.getElementById("historyStatus").innerText=saved().split(/\r?\n/).filter(x=>x.trim()).length+" results saved in this browser."}
+historyInput.value=saved();refresh();
+function saveHistory(){if(!historyInput.value.trim()){document.getElementById("historyStatus").innerText="Paste results first.";return}localStorage.setItem(HISTORY_KEY,historyInput.value.trim());refresh()}
+function clearHistory(){if(confirm("Delete saved history from this browser?")){localStorage.removeItem(HISTORY_KEY);historyInput.value="";refresh()}}
+imageInput.addEventListener("change",()=>{let f=imageInput.files[0],p=document.getElementById("preview");if(!f){p.style.display="none";return}p.src=URL.createObjectURL(f);p.style.display="block"});
+async function analyseImage(){let out=document.getElementById("analysisResult"),file=imageInput.files[0];if(!file){out.innerText="Upload an upcoming-fixtures screenshot first.";return}out.innerText="Analysing fixtures against saved history...";let form=new FormData();form.append("image",file);form.append("history",saved());try{let r=await fetch("https://sir-trades-ag.rolix717.workers.dev",{method:"POST",body:form}),d=await r.json();if(!r.ok)throw Error(d.error||"Analysis failed");out.innerText=d.analysis||"No selections returned."}catch(e){out.innerText="Error: "+e.message}}
+function calculateOdds(){let a=document.getElementById("odds").value.split(/[,\s]+/).filter(Boolean).map(Number),s=Number(document.getElementById("stake").value);if(!a.length||a.some(x=>!Number.isFinite(x)||x<=1)||!Number.isFinite(s)||s<=0){alert("Enter valid odds and stake.");return}let c=a.reduce((x,y)=>x*y,1),r=c*s;document.getElementById("combined").innerText=c.toFixed(2);document.getElementById("returns").innerText=Math.round(r).toLocaleString()+" UGX";document.getElementById("profit").innerText=Math.round(r-s).toLocaleString()+" UGX";document.getElementById("probability").innerText=(100/c).toFixed(2)+"%"}
