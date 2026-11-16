@@ -1,34 +1,15 @@
 const imageInput = document.getElementById("imageInput");
 
-imageInput.addEventListener("change", function () {
-    const file = this.files[0];
-
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-        alert("Please select an image.");
-        return;
-    }
-
-    const preview = document.getElementById("preview");
-
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
-
-    document.getElementById("analysisResult").innerText =
-        "Screenshot uploaded successfully.";
-});
-
 async function analyseImage() {
-    const file = imageInput.files[0];
     const result = document.getElementById("analysisResult");
+    const file = imageInput.files[0];
 
     if (!file) {
-        alert("Upload a screenshot first.");
+        result.innerText = "Please upload a screenshot first.";
         return;
     }
 
-    result.innerText = "SIR TRADES AI is analysing your screenshot...";
+    result.innerText = "🔥 SIR TRADES AI is analysing...";
 
     const formData = new FormData();
     formData.append("image", file);
@@ -56,41 +37,23 @@ async function analyseImage() {
 }
 
 function calculateOdds() {
-    const input = document.getElementById("odds").value;
-
-    const numbers = input
+    const numbers = document.getElementById("odds").value
         .split(/[,\s]+/)
         .filter(Boolean)
         .map(Number);
 
     const stake = Number(document.getElementById("stake").value);
 
-    if (
-        numbers.length === 0 ||
-        numbers.some(n => !Number.isFinite(n) || n <= 1) ||
-        !Number.isFinite(stake) ||
-        stake <= 0
-    ) {
-        alert("Enter valid odds greater than 1 and a stake greater than 0.");
+    if (!numbers.length || numbers.some(n => !Number.isFinite(n) || n <= 1) || stake <= 0) {
+        alert("Enter valid odds and stake.");
         return;
     }
 
     const combined = numbers.reduce((a, b) => a * b, 1);
     const returns = combined * stake;
-    const profit = returns - stake;
-    const probability = 100 / combined;
 
-    document.getElementById("combined").innerText =
-        combined.toFixed(2);
-
-    document.getElementById("returns").innerText =
-        Math.round(returns).toLocaleString() + " UGX";
-
-    document.getElementById("profit").innerText =
-        Math.round(profit).toLocaleString() + " UGX";
-
-    document.getElementById("probability").innerText =
-        probability.toFixed(2) + "%";
+    document.getElementById("combined").innerText = combined.toFixed(2);
+    document.getElementById("returns").innerText = Math.round(returns).toLocaleString() + " UGX";
+    document.getElementById("profit").innerText = Math.round(returns - stake).toLocaleString() + " UGX";
+    document.getElementById("probability").innerText = (100 / combined).toFixed(2) + "%";
 }
-  }
-};
